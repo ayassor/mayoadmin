@@ -1,10 +1,52 @@
+<?php
+session_start();
+include('../../api_codes/api_req_functions.php');
+
+if(empty($_SESSION['token_auth'])) {
+  header("Location: ../index.php");
+  echo "Veuillez vous connecter!";
+  die;
+}
+
+// URL de l'API pour récupérer la liste des users
+$url_get_users = "http://35.237.39.146:9000/api/v1/utilisateur";
+
+// Définir les en-têtes personnalisés nécessaires pour les prochaines requêtes
+$headers_all = [
+  'Content-Type: application/json',
+  'Authorization: Bearer ' . $_SESSION['token_auth']
+];
+
+$compare_token = $_SESSION['token_auth'];
+
+$users_data = api_data_function($url_get_users, $headers_all);
+
+$decode_users_data = json_decode($users_data, true);
+
+$data_vue = [];
+
+$nbre_lignes = 0;
+
+if ($decode_users_data !== null && isset($decode_users_data['data'])) {
+  // Parcourir les enregistrements et afficher les valeurs des propriétés spécifiques
+  foreach ($decode_users_data['data'] as $enregistrement) {
+      $data_vue[] = $enregistrement;
+      $nbre_lignes++;
+    }
+  } else {
+      echo "Erreur de décodage ou de type des données JSON.";
+  }
+  //var_dump($decode_users_data);
+  $data_vue_json = json_encode($data_vue);
+?>
+
 <!DOCTYPE html>
 <html>
 
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>AdminLTE 3 | Dashboard</title>
+  <title>Tableau de bord | Mayo Admin</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Font Awesome -->
@@ -51,13 +93,7 @@
         <div class="container-fluid">
           <div class="row mb-2">
             <div class="col-sm-6">
-              <h1 class="m-0 text-dark">Dashboard</h1>
-            </div><!-- /.col -->
-            <div class="col-sm-6">
-              <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard v1</li>
-              </ol>
+              <h1 class="m-0 text-dark">Tableau de bord</h1>
             </div><!-- /.col -->
           </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -72,9 +108,9 @@
             <!-- fix for small devices only -->
             <div class="clearfix hidden-md-up"></div>
             <div class="col-12 col-sm-6 col-md-3" v-for="data in resumeCardData" :key="data.id">
+              <a :href="data.url" style="color:#000">
               <div class="info-box mb-3">
-                <span :class="data.subBoxStyle"> <i :class="data.icon"></i></span>
-
+                <span :class="data.subBoxStyle" style="margin:5px;width:75px;height:50px" > <i :class="data.icon"></i></span>
                 <div class="info-box-content">
                   <span class="info-box-text">{{data.title}}</span>
                   <span class="info-box-number">{{data.number}}</span>
@@ -82,6 +118,7 @@
                 <!-- /.info-box-content -->
               </div>
               <!-- /.info-box -->
+              </a>
             </div>
           </div>
           <!-- /.row -->
@@ -94,36 +131,32 @@
               <div class="card">
                 <div class="card-header">
                   <h3 class="card-title" style='font-weight:600'>
-                    PERFORMANCE DU MOIS
+                    CE MOIS, VOUS AVEZ OBTENU :
                   </h3>
                 </div>
                 <div class="card-body">
                   <div class="row">
                     <div class="col-md-6" v-for="data in statCardData" :key="data.id">
-                      <div class="container info-box ">
+                      <div class="container info-box">
                         <div class="row" style="width:100%">
                           <div class="col-md-6">
                             <div class="info-box-content">
-                              <span class="info-box-number theme-text-primary theme-stat-size" style="ont-size:13px">
+                              <span class="info-box-number theme-text-primary theme-stat-size" style="font-size:25px">
                                 {{data.number}}
                               </span>
-                              <span class="info-box-text">{{data.title}}</span>
+                              <span class="info-box-text" style="font-weight:bold">{{data.title}}</span>
                             </div>
                           </div>
                           <div class="col-md-6 align-right">
                             <div>
-                              <span :class="data.subBoxStyle"> 250% </span>
+                              <span :class="data.subBoxStyle" style="margin-left:75px;padding-left:10px;padding-right:10px"> -250% </span>
                               </br>
-                              <p style="color: black; font-size:13px"> {{data.activeUser}} {{data.title}} actif </p>
+                              <p style="color: black;font-size:13px;margin-left:15px;margin-top:10px;margin-bottom:5px"> {{data.activeUser}} {{data.title}} actif(s) </p>
                             </div>
                           </div>
                         </div>
-
-
                       </div>
                     </div>
-
-
                   </div><!-- /.card-body -->
                 </div>
                 <!-- /.card -->
@@ -140,35 +173,31 @@
 
                 <div class="card-header">
                   <h3 class="card-title">
-                    Dernières transactions
+                    Dernières opérations
                   </h3>
                 </div>
 
-                <div class="card-body">
-                  <div class="container info-box" v-for="data in dataList" :key="data.id">
-                    <div class="row" style="width: 100%,">
-                      <div class="col-md-6">
-                        {{ data.title }}
+                <div class="card-body" style="overflow-x:hidden">
+                  <!--<div class="container info-box" v-for="data in dataList" :key="data.id" style="height:100px">
+                    <div class="row mt-1" style="display:flex;flex-direction:column;width:100%">
+                      <div class="col-md-6 ml-2">
+                        <div class="row" style="font-weight:bold">{{ data.title }}</div>
+                        <div class="row">DE : {{data.from}} </div>
+                        <div class="row">A : {{data.to}} </div>
                       </div>
-                      <div class="col-md-6">
-                        un test ici 
+                      <div class="col-md-6 align-right">
+                         <div class="row" style="font-size:20px;font-weight:bold;color:green;width:100%">{{ data.amount }} FCFA</div>
+                         <br>
+                         <div class="row">
+                          <div class="col-md-2"><img src="../dist/img/tmoney.png" style="width:60px;height:43px"></div>
+                          <div class="col-md-1"><i class="fa fa-arrow-right" style="margin-top:12px"></i></div>
+                          <div class="col-md-2"><img src="../dist/img/moov-money.png" style="width:35px;height:35px;margin-top:5px"></div>
+                         </div>
                       </div>
                     </div>
                     <br>
-
-                    <div class="row">
-                      <div class="col-md-6">
-                         <p style="color:black">DE : {{data.from}} </p>
-                         <p style="color:black">A : {{data.to}} </p>
-                      </div>
-                      <div class="col-md-6">
-                        {{ data.title }}
-                      </div>
-                    </div>
-
-                  </div>
-
-
+                  </div>-->
+                    <span>Aucune transaction</span>
                 </div>
 
               </div>
@@ -192,10 +221,8 @@
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <strong>Copyright &copy; 2014-2019 <a href="http://adminlte.io">AdminLTE.io</a>.</strong>
-    All rights reserved.
+    Vous êtes connecté(e) en tant que <strong>SUPER ADMIN</strong>
     <div class="float-right d-none d-sm-inline-block">
-      <b>Version</b> 3.0.4
     </div>
   </footer>
 
@@ -252,40 +279,21 @@
         username: '',
         password: '',
         dataList: [
-          { id: 1, title: 'Donnée 1', from :'+228 98489705', to:'+228 90050505' },
+          { id: 1, title: 'Transfert Mobile Money', from :'+228 98489705', to:'+228 90050505', amount: '5000' },
           { id: 2, title: 'Donnée 2' , from :'+228 98489705', to:'+228 90050505' },
           { id: 3, title: 'Donnée 3', from :'+228 98489705', to:'+228 90050505' },
         ],
         resumeCardData: [
-          { id: 1, title: 'Total Clients', number: '5900', icon: 'fas fa-users', subBoxStyle: 'info-box-icon  elevation-1 bg-success' },
-          { id: 2, title: 'Total Marchands', number: '900', icon: 'fas fa-store', subBoxStyle: 'info-box-icon  elevation-1 bg-warning ' },
-          { id: 3, title: 'Total Chauffeurs', number: '500', icon: 'fas fa-car', subBoxStyle: 'info-box-icon  elevation-1 bg-primary ' },
-          { id: 4, title: 'Total Transactions', number: '30900', icon: 'fas fa-exchange-alt', subBoxStyle: 'info-box-icon  elevation-1 bg-danger ' },
+          { id: 1, title: 'Total Clients', number: <?= $nbre_lignes; ?>, icon: 'fas fa-users', subBoxStyle: 'info-box-icon elevation-1 bg-success', url: 'consumers-all.php' },
+          { id: 2, title: 'Total Marchands', number: '0', icon: 'fas fa-store', subBoxStyle: 'info-box-icon elevation-1 bg-info', url: '#' },
+          { id: 3, title: 'Total Chauffeurs', number: '0', icon: 'fas fa-car', subBoxStyle: 'info-box-icon elevation-1 bg-primary ', url: '#' },
+          { id: 4, title: 'Total Opérations', number: '0', icon: 'fas fa-exchange-alt', subBoxStyle: 'info-box-icon elevation-1 bg-danger ', url: '#' },
         ],
         statCardData: [
-          { id: 1, title: 'Client', number: '5000', subBoxStyle: 'bg-info elevation-1 stat-info', activeUser: '50' },
-          { id: 2, title: 'Marchand', number: '200', subBoxStyle: 'bg-danger elevation-1 stat-info', activeUser: '20' },
-          { id: 3, title: 'Chauffeur', number: '30', subBoxStyle: 'bg-warning elevation-1 stat-info', activeUser: '90' },
+          { id: 1, title: 'Client(s)', number: <?= $nbre_lignes; ?>, subBoxStyle: 'bg-success elevation-1 stat-info', activeUser: '50' },
+          { id: 2, title: 'Marchand(s)', number: '0', subBoxStyle: 'bg-danger elevation-1 stat-info', activeUser: '0' },
+          { id: 3, title: 'Chauffeur(s)', number: '0', subBoxStyle: 'elevation-1 stat-info', activeUser: '0' },
         ],
-      },
-
-      methods: {
-        login() {
-          // Ici, vous pouvez implémenter la logique d'authentification, par exemple en utilisant une requête AJAX vers un backend
-          // Pour cet exemple, nous définissons juste loggedIn à true si le nom d'utilisateur et le mot de passe sont remplis
-          if (this.username && this.password) {
-            this.loggedIn = true;
-
-            window.location.href = './screens/dashboard.php';
-          } else {
-            alert('Veuillez remplir tous les champs.');
-          }
-        },
-        logout() {
-          this.loggedIn = false;
-          this.username = '';
-          this.password = '';
-        }
       }
     });
   </script>

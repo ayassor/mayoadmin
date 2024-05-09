@@ -1,3 +1,55 @@
+<?php
+require '../vendor/autoload.php';
+session_start();
+include('../api_codes/api_req_functions.php');
+include('../api_codes/api_signin.php');
+
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+
+    $username = $_POST["username"];
+    $pwd = $_POST["password"];
+
+    $donnees_auth = [
+        "password" => $pwd,
+        "phone" => $username
+      ];
+
+      $api_connect = api_auth_function($url_auth, $donnees_auth, $headers_auth);
+  
+      $decode_signin_data = json_decode($api_connect, true);
+      
+      $token_auth = $decode_signin_data['token'];
+      $user_id_auth = $decode_signin_data['data']['utilisateur']['id'];
+      
+      // Vérifier si le token d'authentification a été obtenu avec succès
+      if ($token_auth) {
+        // Stocker le token d'authentification dans la variable de session
+        $_SESSION['token_auth'] = $token_auth;
+        $_SESSION['user_id_auth'] = $user_id_auth;
+        echo "Token d'authentification et ID de l'utilisateur obtenus avec succès.";
+      } else {
+        echo "Échec de l'obtention du token d'authentification.";
+      }
+
+    if(!empty($username) && !empty($pwd)){
+
+        if(!empty($_SESSION['token_auth'])){
+                header("Location: screens/dashboard.php");
+                die;
+        }
+        else {
+            header("Location: index.php");
+            echo "Nom d'utilisateur ou mot de passe incorrect";
+            die;
+        }
+    }    
+    else {
+        echo "Informations de connexion manquantes";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,6 +71,7 @@
         crossorigin="anonymous"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
@@ -34,10 +87,10 @@
                             <h2 class="title-style">Bienvenue !</h2>
                             <p class="text-style">Connectez-vous pour avoir accès a l'interface d'administration</p>
                         </center>
-                        <form @submit.prevent="login">
+                        <form method="POST">
                             <label for="username" class="form-label label">Nom d'utilisateur</label>
                             <br>
-                            <input type="text" id="username" class="form-control" v-model="username">
+                            <input type="text" id="username" name="username" class="form-control" v-model="username">
                             <div class="row">
                                 <div class="col">
                                     <label for="password" class="form-label label">Mot de passe</label>
@@ -47,7 +100,7 @@
                                 </div>
                             </div>
 
-                            <input type="password" id="password" class="form-control input" v-model="password">
+                            <input type="password" id="password" name="password" class="form-control input" v-model="password">
                             <br>
                             <center>
 
@@ -67,59 +120,6 @@
         </div>
     </div>
    
-
-    <script>
-        import axios from 'axios';
-
-        // Initialiser une nouvelle instance de Vue
-        new Vue({
-            el: '#app',
-            data: {
-                loggedIn: false,
-                username: '',
-                password: ''
-            },
-            methods: {
-                login() {
-                    print('ererererere');
-                    this.loggedIn = true;
-                    this.username = '';
-                    this.password = '';
-
-
-                    // Ici, vous pouvez implémenter la logique d'authentification, par exemple en utilisant une requête AJAX vers un backend
-                    // Pour cet exemple, nous définissons juste loggedIn à true si le nom d'utilisateur et le mot de passe sont remplis
-                   
-                    // if (this.username && this.password) {
-                    //     const credentials = {
-                    //     email: this.username,
-                    //     password: this.password
-                    // };
-
-                    //     // Appel à votre API pour vérifier les informations d'identification
-                    //     axios.post('http://35.237.39.146:9000/api/v1/auth/signin', credentials)
-                    //         .then(response => {
-                    //             // Gérer la réponse de l'API (par exemple, rediriger l'utilisateur si la connexion est réussie)
-                    //             console.log('Connexion réussie', response.data);
-                    //             // this.loggedIn = true;
-
-                    //         })
-                    //         .catch(error => {
-                    //             // Gérer les erreurs (par exemple, afficher un message d'erreur à l'utilisateur)
-                    //             console.error('Erreur de connexion', error);
-                    //         });
-                    // } else {
-                    //     alert('Veuillez remplir tous les champs.');
-                    // }
-                },
-                logout() {
-                    this.loggedIn = false;
-                    this.username = '';
-                    this.password = '';
-                }
-            }
-        });
-    </script>
 </body>
 <style>
     .red-background {
