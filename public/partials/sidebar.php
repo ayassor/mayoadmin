@@ -1,6 +1,6 @@
 <aside class="main-sidebar sidebar-custom elevation-4" style=''>
     <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
+    <a href="#" class="brand-link">
         <img src="../dist/img/mayo-logo.svg" alt="Mayo" class="brand-image elevation-1"
             style="opacity: .8">
             <br>
@@ -19,7 +19,7 @@
                with font-awesome or any other icon font library -->
                
                 <li class="nav-item">
-                    <a href="../screens/dashboard.php" class="nav-link active">
+                    <a href="../screens/dashboard.php" class="nav-link">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Tableau de bord
@@ -36,13 +36,13 @@
                     </a>
                     <ul class="nav nav-treeview ml-4">
                         <li class="nav-item">
-                            <a href="../screens/consumers-all.php" class="nav-link">
-                                <p>Tous les clients</p>
+                            <a href="../screens/add-consumer.php" class="nav-link">
+                                <p>Ajouter un client</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <p>Historique</p>
+                            <a href="../screens/consumers-all.php" class="nav-link">
+                                <p>Tous les clients</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -68,11 +68,6 @@
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <p>Historique</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
                                 <p>Statistiques</p>
                             </a>
                         </li>
@@ -90,11 +85,6 @@
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <p>Tous les chauffeurs</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <p>Historique</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -151,17 +141,17 @@
                     <ul class="nav nav-treeview ml-4">
                         <li class="nav-item">
                             <a href="../screens/money-transfer.php" class="nav-link">
-                                <p>Transfert d'argent</p>
+                                <p>Transferts d'argent</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="../screens/airtime-bundle.php" class="nav-link">
+                            <a href="../screens/airtime-bundle2.php" class="nav-link">
                                 <p>Achats de forfaits</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="../screens/bills-payment.php" class="nav-link">
-                                <p>Paiement de factures</p>
+                            <a href="../screens/bills-payment2.php" class="nav-link">
+                                <p>Paiements de factures</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -172,7 +162,7 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="../screens/dashboard.php" class="nav-link">
+                    <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p>
                             Staff
@@ -322,6 +312,32 @@
     </div>
     <!-- /.sidebar -->
 </aside>
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+    var currentPage = "<?php echo $current_page; ?>";
+
+    // Trouver tous les liens dans la barre latérale
+    var links = document.querySelectorAll(".nav-item a");
+
+    links.forEach(function(link) {
+        var href = link.getAttribute("href");
+        var parentLi = link.closest(".nav-item.has-treeview");
+        var parentA = link.closest(".nav-link");
+
+        // Vérifier si le lien correspond à la page actuelle
+        if (currentPage === href) {
+            link.classList.add("active");
+
+            // Si le lien a un parent avec la classe "has-treeview", ajoutez la classe "menu-open" au parent
+            if (parentLi && parentLi.classList.contains("has-treeview")) {
+                parentLi.classList.add("menu-open");
+                parentA.classList.add("active");
+            }
+        }
+    });
+});
+</script>
 
 <style>
 
@@ -329,25 +345,87 @@
         background-color: #AA742A;!important
     }
     .sidebar-custom .sidbar nav ul li a.nav-link{
-        color : white
+        color: white;
     }
-    p{
-        
-        color: white;  important!;
+    p{ 
+        color: white; important!;
     }
     .nav-link i{
-        color: white;  important!;
-
+        color: white; important!;
     }
     .info a{
-        color: white;  important!;
+        color: white !important;
     }
     .brand-text{
-        color: white;  important!;
-
+        color: white !important;
     }
-    nav .nav .nav-item .active {
-        background-color: white; important!;
+    nav .nav .nav-item .active{
+        background-color: white !important;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview .nav-item {
+        margin-left: -5%;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview:hover{
+        background-color: #AA742A;
+        color: white;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview:hover .nav-link:hover{
+        background-color: white;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview:hover .nav-item .nav-link p{
+        color: white;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview .nav-item .nav-link.active:hover p{
+        color: #AA742A;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview:hover .nav-item .nav-link.active p{
+        color: #AA742A;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview:hover .nav-item ~ .nav-item:hover .nav-link p{
+        color: #AA742A;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview .nav-link:hover{
+        background-color: white;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview:hover .nav-link p{
+        color: white;
+    }
+    nav .nav .nav-item.has-treeview .nav-link ~ .nav.nav-treeview .nav-item:hover .nav-link p{
+        color: #AA742A;
+    }
+
+
+    nav .nav .nav-item.has-treeview.menu-open .nav-link.active ~ .nav.nav-treeview:hover{
+        background-color: #AA742A;
+        color: white;
+    }
+    nav .nav .nav-item.has-treeview.menu-open .nav-link.active ~ .nav.nav-treeview:hover .nav-link:hover{
+        background-color: white;
+    }
+    nav .nav .nav-item.has-treeview.menu-open .nav-link.active ~ .nav.nav-treeview:hover .nav-link:hover ~ .nav-link{
+        background-color: white;
+        color: #AA742A;
+    }
+    nav .nav .nav-item.has-treeview.menu-open .nav-link.active ~ .nav.nav-treeview .nav-link:hover{
+        background-color: white;
+    }
+    nav .nav .nav-item.has-treeview.menu-open .nav-link.active ~ .nav.nav-treeview:hover .nav-link p{
+        color: white;
+    }
+    nav .nav .nav-item.has-treeview.menu-open .nav-link.active ~ .nav.nav-treeview .nav-item:hover .nav-link p{
+        color: #AA742A;
+    }
+    nav .nav .nav-item .active :hover{
+        background-color: white !important;
+    }
+    nav .nav .nav-item .active :hover p, nav .nav .nav-item .active :hover i{
+        color: #AA742A;
+    }
+    nav .nav .nav-item :hover {
+        background-color: white;
+    }
+    nav .nav .nav-item :hover p, nav .nav .nav-item :hover i {
+        color: #AA742A;
     }
     nav .nav .nav-item .active p{
             color: #AA742A;

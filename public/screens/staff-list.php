@@ -2,12 +2,10 @@
 session_start();
 include('../../api_codes/api_req_functions.php');
 
-$current_page = "../screens/".basename($_SERVER['PHP_SELF']);
-
 if(empty($_SESSION['token_auth'])) {
   header("Location: ../index.php");
-  echo "Veuillez vous connecter!";
   die;
+  echo "Veuillez vous connecter!";
 }
 
 // URL de l'API pour récupérer la liste des users
@@ -20,43 +18,25 @@ $headers_all = [
   'Authorization: Bearer ' . $_SESSION['token_auth']
 ];
 
-$user_id_auth = $_SESSION['user_id_auth'];
+$users_data = api_data_function($url_get_users, $headers_all);
 
-$users_data = api_get_data_function($url_get_users, $headers_all);
 $decode_users_data = json_decode($users_data, true);
 
-$users_data_vue = [];
-$data_money_transfer_vue = [];
+$data_vue = [];
 
 $nbre_lignes = 0;
 
-  $url_money_trans = "http://104.196.146.173:9004/api/v1/transactionInterne/$user_id_auth";
-  
-  $money_trans_data = api_get_data_function($url_money_trans, $headers_all);
-  $decode_money_trans_data = json_decode($money_trans_data, true);
-
-  if ($decode_users_data !== null && isset($decode_users_data['data'])) {
-    // Parcourir les enregistrements et afficher les valeurs des propriétés spécifiques
-    foreach ($decode_users_data['data'] as $user_data) {
-        $users_data_vue[] = $user_data;
-        $nbre_lignes++;
-      }
+if ($decode_users_data !== null && isset($decode_users_data['data'])) {
+  // Parcourir les enregistrements et afficher les valeurs des propriétés spécifiques
+  foreach ($decode_users_data['data'] as $enregistrement) {
+      $data_vue[] = $enregistrement;
+      $nbre_lignes++;
+    }
   } else {
-        echo "Erreur de décodage ou de type des données JSON concernant les utilisateurs.";
+      echo "Erreur de décodage ou de type des données JSON.";
   }
-
-  if ($decode_money_trans_data !== null && isset($decode_money_trans_data['data'])) {
-    // Parcourir les enregistrements et afficher les valeurs des propriétés spécifiques
-    foreach ($decode_money_trans_data['data'] as $operation) {
-        $data_money_transfer_vue[] = $operation;
-        $nbre_lignes++;
-      }
-  } else {
-        echo "Erreur de décodage ou de type des données JSON concernant les opérations de transfert d'argent.";
-  }
-    //var_dump($data_money_trans_vue[1]['data']);
-    $data_money_transfer_vue_json = json_encode($data_money_transfer_vue);
-    $json_users_data = json_encode($users_data_vue);
+  //var_dump($decode_users_data);
+  $data_vue_json = json_encode($data_vue);
 ?>
 
 <!DOCTYPE html>
@@ -65,7 +45,7 @@ $nbre_lignes = 0;
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Transfert d'argent | Mayo Admin</title>
+  <title>Tous les clients | Mayo Admin</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Font Awesome -->
@@ -80,6 +60,7 @@ $nbre_lignes = 0;
   <link rel="stylesheet" href="../plugins/jqvmap/jqvmap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="../dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="../dist/css/mayo.css">
   <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
   <!-- Daterange picker -->
@@ -105,14 +86,14 @@ $nbre_lignes = 0;
   <?php include '../partials/navbar.php'; ?>
   <?php include '../partials/sidebar.php'; ?>
 
-  <div id="app2">
+  <div id="app">
     <div class="content-wrapper">
       <!-- Content Header (Page header) -->
       <div class="content-header">
         <div class="container-fluid">
           <div class="row mb-2">
             <div class="col-sm-6">
-              <h4 class="m-0 text-dark">Transferts d'argent</h4>
+              <h4 class="m-0 text-dark">Tous les clients</h4>
             </div><!-- /.col -->
           </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -125,28 +106,28 @@ $nbre_lignes = 0;
           <div class="col-12">
             <div class="card">
               <div class="card-header row">
-                <div class="input-group input-group-sm mr-3" style="width: 350px">
+                <div class="input-group input-group-sm mr-3" style="width: 250px">
                     <input type="text" id="table-searchbar" name="table_search" class="form-control float-right" style="height: 40px" placeholder="Rechercher">
                 </div>
                 <div class="col-md-4 input-group input-group-sm mr-3">
-                    <span style="margin-right:10px;margin-top:7px">Filtrer par dates</span>
-                    <input type="date" class="form-control float-right mr-2" style="height: 40px">
-                    <input type="date" class="form-control float-right" style="height: 40px">
+                    <span style="margin-right:10px;margin-top:7px">Filtre de dates</span>
+                    <input type="date" id="dateDebut" class="form-control float-right mr-2" style="height: 40px">
+                    <input type="date" id="dateFin" class="form-control float-right" style="height: 40px">
                 </div>
-                <div class="input-group input-group-sm" style="width: 275px;margin-right:15px">
+                <div class="input-group input-group-sm" style="width: 250px;margin-right:15px">
                     <span style="margin-right:10px;margin-top:7px">Classer par</span>
                        <select class="form-control" style="height: 40px">
                           <option>---Aucun---</option>
-                          <option>Date de transaction</option>
-                          <option>Numéro de l'expéditeur</option>
-                          <option>Numéro du destinataire</option>
-                          <option>Montant</option>
-                          <option>Frais</option>
+                          <option>Date d'inscription</option>
+                          <option>Derniere mise a jour</option>
+                          <option>Opérateur</option>
                           <option>Statut</option>
+                          <option>Role</option>
                         </select>
                 </div>
-                <div class="input-group input-group-sm" style="width: 125px;">
-                    <button type="button" class="btn btn-default btn btn-block btn-outline-secondary" data-toggle="modal" data-target="#modal-default">Exporter</button>
+                <div class="btn-group" style="width: 250px;">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-default">Ajouter un compte client</button>
+                    <button type="button" class="btn btn-default btn-outline-secondary" data-toggle="modal" data-target="#modal-default">Exporter</button>
                 </div>
                 <div class="modal fade" id="modal-default">
         <div class="modal-dialog">
@@ -172,96 +153,109 @@ $nbre_lignes = 0;
               </div>
               <!-- /.card-header -->
               <div class="card-body table-responsive p-0">
-                <table id="tableau-moneyTrans" class="table table-hover text-nowrap">
+                <table id="tableau-consumers" class="table table-hover text-nowrap">
                   <thead>
                     <tr>
+                      <th>
+                          <input type="checkbox">
+                      </th>
                       <th>ID</th>
-                      <th>Date de transaction</th>
-                      <th>Type</th>
-                      <!--<th>Nom de l'expéditeur</th>-->
-                      <th>Numéro de l'expéditeur</th>
-                      <th>Numéro du receveur</th>
-                      <th>Montant</th>
-                      <th>Frais</th>
-                      <th>Total</th>
+                      <th>Date d'inscription</th>
+                      <th>Derniere mise a jour</th>
+                      <th>Nom & Prénom(s)</th>
+                      <th>Opérateur</th>
+                      <th>Numéro de téléphone</th>
+                      <th>Statut</th>
+                      <th>Points Cashback</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(data, index) in moneyTransList" :key="data.id">
-                      <td> {{ index + 1 }} </td>
-                      <td> {{ formatDate(data.date) }} </td>
-                      <td> {{ operatorCheck(data.phone) }} </td>
-                      <!--<td> {{ data.nom }} {{ data.prenom }}</td>-->
-                      <td> {{ data.phone }} </td>
-                      <td> +228{{ extraireNumDestinataire(data.body) }} </td>
-                      <td> {{ data.amount }} F CFA</td>
-                      <td> {{ extraireFrais(data.body) }} F CFA</td>
-                      <td> {{ calculerTotal(extraireFrais(data.body),data.amount) }} F CFA</td>
+                    <tr v-for="(data, index) in userList" :key="data.id">
                       <td>
-                      <button type="button" :class="btns.viewClassValue" data-toggle="modal" @click="viewDetails(data.id,data.date,data.phone,data.body,data.amount,data.nom,data.prenom)" data-target="#modal-det"><i :class="btns.viewIconValue"></i></button>
+                          <input :id="data.id" type="checkbox">
+                      </td>
+                      <td> {{ index + 1 }} </td>
+                      <td id="colonne-date"> {{ formatDate(data.createdAt) }} </td>
+                      <td> {{ formatDate(data.updatedAt) }} </td>
+                      <td style="text-transform:uppercase"> {{ data.nom }} {{ data.prenom }}</td>
+                      <td> {{ operatorCheck(data.phone) }} </td>
+                      <td> {{ data.phone }} </td>
+                      <td style="text-transform:uppercase"><span> {{ data.status }} </span></td>
+                      <td v-if="data.cashbackPoints"> {{ data.cashbackPoints }} </td>
+                      <td v-else> 0 </td>
+                      <td>
+                      <button type="button" :class="btns.editClassValue" data-toggle="modal" data-target="#modal-primary"><i :class="btns.editIconValue"></i></button>
+                      <button type="button" :class="btns.disableClassValue" data-toggle="modal" data-target="#modal-danger"><i :class="btns.disableIconValue"></i></button>
+                      <button type="button" :class="btns.deleteClassValue" data-toggle="modal" data-target="#modal-danger"><i :class="btns.deleteIconValue"></i></button>
                       </td>
                     </tr>
                   </tbody>
                 </table>
                 
-                <div class="modal fade" id="modal-det">
+      <div class="modal fade" id="modal-primary">
         <div class="modal-dialog">
-          <div class="modal-content">
+          <div class="modal-content bg-primary">
             <div class="modal-header">
-              <h4 class="modal-title">Détails de l'opération</h4>
+              <h4 class="modal-title">Modification des informations</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-              <!-- form start -->
-              <form role="form">
-                <div class="card-body">
-                  <div class="form-group">
-                    <label for="InputLastName">Date d'achat</label>
-                    <input readonly type="text" class="form-control" id="date_achat">
-                  </div>
-                  <div class="form-group">
-                    <label for="InputFirstName">Type de transfert</label>
-                    <input readonly type="text" class="form-control" id="operateur">
-                  </div>
-                  <div class="form-group">
-                    <label for="InputPassword1">Montant Total</label>
-                    <input readonly type="text" class="form-control" id="montant">
-                  </div>
-                  <div class="form-group">
-                    <label for="InputPassword2">Nom & Prénom(s) de l'expediteur</label>
-                    <input readonly type="text" style="text-transform:uppercase" class="form-control" id="np_expediteur">
-                  </div>
-                </div>
-                <!-- /.card-body -->
-              </form>
+              <p>Êtes-vous sûr de vouloir modifier les informations de ce compte utilisateur ?</p>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-outline-light" data-dismiss="modal">Annuler</button>
+              <button type="button" class="btn btn-outline-light">Modifier les informations</button>
             </div>
           </div>
           <!-- /.modal-content -->
         </div>
         <!-- /.modal-dialog -->
       </div>
-              </div>
+                      
+      <div class="modal fade" id="modal-warning">
+        <div class="modal-dialog">
+          <div class="modal-content bg-warning">
+            <div class="modal-header">
+              <h4 class="modal-title">Désactivation de compte</h4>
+            </div>
+            <div class="modal-body">
+              <p>Êtes-vous sûr de vouloir désactiver ce compte utilisateur ?</p>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-outline-light" data-dismiss="modal">Annuler</button>
+              <button type="button" class="btn btn-outline-light">Désactiver le compte</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+
                 
       <div class="modal fade" id="modal-danger">
         <div class="modal-dialog">
           <div class="modal-content bg-danger">
             <div class="modal-header">
-              <h4 class="modal-title">Danger Modal</h4>
+              <h4 class="modal-title">Suppression de compte</h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-              <p>One fine body&hellip;</p>
+              <p>Êtes-vous sûr de vouloir supprimer ce compte utilisateur ?</p>
+              <h5>(Cette action est irréversible)</h5>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-outline-light" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-outline-light">Save changes</button>
+              <button type="button" class="btn btn-outline-light" data-dismiss="modal">Annuler</button>
+              <button type="button" class="btn btn-outline-light">Supprimer le compte</button>
             </div>
           </div>
           <!-- /.modal-content -->
         </div>
         <!-- /.modal-dialog -->
       </div>
+
                 <div class="card-footer clearfix">
                 <ul class="pagination pagination-sm m-0 float-right">
                   <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
@@ -288,7 +282,7 @@ $nbre_lignes = 0;
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <strong>Nombre de lignes : <?= $nbre_lignes ?></strong>
+    <strong><?= $nbre_lignes ?> élément(s) | 0 sélectionné(s)</strong>
   </footer>
 
   <!-- Control Sidebar -->
@@ -336,50 +330,18 @@ $nbre_lignes = 0;
 
 
   <script>
+
     // Initialiser une nouvelle instance de Vue
     new Vue({
-      el: '#app2',
+      el: '#app',
       data: {
         loggedIn: false,
         username: '',
         password: '',
-        moneyTransList: [],
-        btns: { viewClassValue: 'btn btn-primary btn-xs', viewIconValue: 'far fa-eye' }
+        userList: <?php echo $data_vue_json; ?>,
+        btns: { editClassValue: 'btn btn-primary btn-xs', editIconValue: 'fas fa-user-edit', disableClassValue: 'btn btn-warning btn-xs', disableIconValue: 'fas fa-power-off', deleteClassValue: 'btn btn-danger btn-xs', deleteIconValue: 'fas fa-trash'}
       },
 
-      mounted() {
-        // Surveiller les changements
-        const updateData = () => {
-          let myData = <?php echo $data_money_transfer_vue_json; ?>;
-          if (myData && myData.length > 0) {
-            let usersData = <?php echo $json_users_data; ?>;
-
-            for(let i=0;i<usersData.length;i++){
-                for(let j=0;j<myData.length;j++){
-                  if (usersData[i]['id'] == myData[j]['id_utilsateur']) {
-                      // Ajoutez le nom et le prénom de l'utilisateur aux données de paiement
-                       myData[j]['nom'] = usersData[i]['nom'];
-                       myData[j]['prenom'] = usersData[i]['prenom'];
-                       myData[j]['phone'] = usersData[i]['phone'];
-                  } 
-                }
-            } 
-            let existingUsersMoneyTrans = [];
-              for(let i=0;i<myData.length;i++){
-                 if(myData[i]['phone'] !== undefined){
-                  existingUsersMoneyTrans.push(myData[i]);
-                 }
-              }
-              //console.log(existingUsersMoneyTrans);
-              this.moneyTransList = existingUsersMoneyTrans;
-          } else {
-            setTimeout(updateData, 100); // Vérifier à nouveau dans 100ms
-          }
-
-        };
-
-        updateData(); // Démarrer la surveillance
-      },
       methods: {
         formatDate(dateRecue) {
             const dateObj = new Date(dateRecue);
@@ -388,68 +350,27 @@ $nbre_lignes = 0;
             const mois = dateObj.getMonth() + 1;
             const annee = dateObj.getFullYear();
 
-            const dateFormatee = `${jour < 10 ? '0' + jour : jour}-${mois < 10 ? '0' + mois : mois}-${annee}`;
+            const dateFormatee = `${mois < 10 ? '0' + mois : mois}-${jour < 10 ? '0' + jour : jour}-${annee}`;
 
             return dateFormatee;
         },
+        
         operatorCheck(numero) {
-           let type_transfer = "";
+           let ope_name = "";
            for (let i = 0; i < numero.length; i++) {
                let ope_digit = numero[5]; 
                if (ope_digit == 0 || ope_digit == 1 || ope_digit == 2 || ope_digit == 3) {
-                  type_transfer = "TOGOCOM a TOGOCOM"; 
+                  ope_name = "TOGOCOM"; 
                } else if (ope_digit == 9 || ope_digit == 8 || ope_digit == 7 || ope_digit == 6) {
-                  type_transfer = "MOOV a MOOV"; 
+                  ope_name = "MOOV AFRICA"; 
                } else {
-                  type_transfer = "INCONNU"; 
+                  ope_name = "INCONNU"; 
                }
            }
 
-           return type_transfer;
-        },
-        extraireNumDestinataire(message) {
-         // Recherche du mot-clé "FCFA au"
-          var position = message.indexOf("FCFA au ");
-    
-         // Si le mot-clé est trouvé
-           if (position !== -1) {
-         // Extrait les 8 caractères après le mot-clé
-           var montant = message.substr(position + "FCFA au ".length, 8);
-        
-         // Retourne le montant extrait
-            return montant;
-           } else {
-         // Si le mot-clé n'est pas trouvé, retourne une chaîne vide
-            return "";
-           }
-        },
-        extraireFrais(message) {
-         // Expression régulière pour trouver les chiffres entre "Frais: " et " FCFA"
-          const regex = /Frais: (\d+) FCFA/g;
-    
-         // Recherche de la correspondance dans le message
-          const matches = regex.exec(message);
-    
-         // Vérification si une correspondance est trouvée
-           if (matches && matches.length > 1) {
-         // Le montant est le premier groupe de capture (les chiffres entre parenthèses)
-          const montant = matches[1];
-            return montant;
-           } else {
-         // Aucun montant trouvé
-             return "null";
-           }
-        },
-        calculerTotal(a,b){
-            return parseInt(a) + parseInt(b);
-        },
-        viewDetails(id,date,phone,body,amount,nom,prenom){
-          this.idOpe = id;
-          document.getElementById('date_achat').value = this.formatDate(date);
-          document.getElementById('operateur').value = this.operatorCheck(phone);
-          document.getElementById('montant').value = this.calculerTotal(this.extraireFrais(body),amount) + " F CFA";
-          document.getElementById('np_expediteur').value = nom +" "+prenom;
-    },
+           return ope_name;
+        }
+
       }
     });
 
@@ -458,14 +379,21 @@ $nbre_lignes = 0;
     });
 
     function searchEl(motsCles) {
-    var lignes = document.querySelectorAll('#tableau-moneyTrans tbody tr');
+       var lignes = document.querySelectorAll('#tableau-consumers tbody tr');
+
+    var motsClesArray = motsCles.toLowerCase().split(' ');
 
     lignes.forEach(function(ligne) {
         var colonnes = ligne.querySelectorAll('td');
         var afficherLigne = false;
 
         colonnes.forEach(function(colonne) {
-            if (colonne.textContent.toLowerCase().includes(motsCles.toLowerCase())) {
+
+          var colonneContientMotsCles = motsClesArray.every(function(motCle) {
+                return colonne.textContent.toLowerCase().includes(motCle);
+            });
+
+            if (colonneContientMotsCles) {
                 afficherLigne = true;
             }
         });
@@ -476,8 +404,46 @@ $nbre_lignes = 0;
             ligne.style.display = 'none';
         }
     });
+    }
 
-}
+       document.getElementById('dateDebut').addEventListener('change', function() {
+              filtrerParPeriode(new Date(this.value), new Date(document.getElementById('dateFin').value));
+        });
+
+       document.getElementById('dateFin').addEventListener('change', function() {
+              filtrerParPeriode(new Date(document.getElementById('dateDebut').value), new Date(this.value));
+        });
+
+       function filtrerParPeriode(dateDebut, dateFin) {
+
+          if (dateDebut > dateFin) {
+             alert("La date de début ne peut pas être postérieure à la date de fin.");
+             return; 
+            }
+
+          var lignes = document.querySelectorAll('#tableau-consumers tbody tr');
+
+          lignes.forEach(function(ligne) {
+            var colonneDate = ligne.querySelector('#colonne-date'); 
+            var dateLigne = new Date(colonneDate.textContent);
+
+            if (dateLigne >= dateDebut && dateLigne <= dateFin) {
+                ligne.style.display = '';
+            }
+            else if (dateLigne <= dateDebut && dateLigne >= dateFin) {
+                ligne.style.display = 'none';
+            }
+            else if (dateLigne >= dateDebut && isNaN(dateFin.getTime())) {
+                ligne.style.display = '';
+            }
+            else if (isNaN(dateDebut.getTime()) && dateLigne <= dateFin) {
+                ligne.style.display = '';
+            }
+            else {
+                ligne.style.display = 'none';
+            }
+        });
+    }
 
   </script>
 </body>

@@ -29,12 +29,15 @@
     <li class="nav-item dropdown">
       <a class="nav-link" data-toggle="dropdown" href="#">
         <i class="far fa-bell" style="color:#000"></i>
-        <span class="badge badge-danger navbar-badge" style="color:#fff">3</span>
+        <!--<span class="badge badge-danger navbar-badge" style="color:#fff">3</span>-->
       </a>
       <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-        <span class="dropdown-item dropdown-header">3 Notifications</span>
+        <span class="dropdown-item dropdown-header">0 Notifications</span>
         <div class="dropdown-divider"></div>
         <a href="#" class="dropdown-item">
+          <span class="float-right text-muted text-sm"></span>
+        </a>
+        <!--<a href="#" class="dropdown-item">
           <i class="fas fa-envelope mr-2"></i> 4 new messages
           <span class="float-right text-muted text-sm">3 mins</span>
         </a>
@@ -49,7 +52,7 @@
           <span class="float-right text-muted text-sm">2 days</span>
         </a>
         <div class="dropdown-divider"></div>
-        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>-->
       </div>
     </li>
     <li class="nav-item dropdown">

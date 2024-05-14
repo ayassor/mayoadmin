@@ -184,13 +184,14 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
                           <input type="checkbox">
                       </th>
                       <th>ID</th>
-                      <th>Date de transaction</th>
+                      <th>Date d'achat</th>
                       <th>Opérateur</th>
-                      <th>Type de forfait</th>
-                      <th>Intitulé du forfait</th>
-                      <th>Numéro de l'expéditeur</th>
-                      <th>Numéro du destinataire</th>
+                      <th>Type</th>
+                      <th>Intitulé</th>
                       <th>Montant</th>
+                      <th>Nom de l'acheteur</th>
+                      <th>Numéro de l'acheteur</th>
+                      <th>Numéro du bénéficiaire</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
