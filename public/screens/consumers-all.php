@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('../../api_codes/api_req_functions.php');
+include('../../api_codes/base_url.php');
 
 $current_page = "../screens/".basename($_SERVER['PHP_SELF']);
 
@@ -11,8 +12,7 @@ if(empty($_SESSION['token_auth'])) {
 }
 
 // URL de l'API pour récupérer la liste des users
-//$url_get_users = "http://35.237.39.146:9000/api/v1/utilisateur";
-$url_get_users = "http://104.196.146.173:9000/api/v1/utilisateur";
+$url_get_users = "$baseUrl/api/v1/utilisateur";
 
 // Définir les en-têtes personnalisés nécessaires pour les prochaines requêtes
 $headers_all = [
@@ -20,11 +20,15 @@ $headers_all = [
   'Authorization: Bearer ' . $_SESSION['token_auth']
 ];
 
+$headers_base = [
+  'Content-Type: application/json'
+];
+
 if($_SERVER["REQUEST_METHOD"] == "POST"){
   if(isset($_POST["deleteForm"])){
     $delUserId = $_POST["delID"];
 
-    $url_delete_user = "http://104.196.146.173:9000/api/v1/utilisateur/$delUserId";
+    $url_delete_user = "$baseUrl/api/v1/utilisateur/$delUserId";
   
     api_delete_data_function($url_delete_user,$headers_all);
     header("Location: consumers-all.php");
@@ -45,27 +49,35 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
       "status" => $updateStatut
 
     ];
-    $url_update_user = "http://104.196.146.173:9000/api/v1/utilisateur/$updUserId";
+    $url_update_user = "$baseUrl/api/v1/utilisateur/$updUserId";
   
     api_put_data_function($url_update_user,$donnees_update,$headers_all);
     header("Location: consumers-all.php");
     exit();
   }
   else if(isset($_POST["updatePwdForm"])){
-    $updPwdUserId = $_POST["updPwdID"];
     
-    $oldPwd = $_POST["openUpdatePwdOld"];
+    $url_get_reset_token = "$baseUrl/api/v1/reinitialser";
+    $url_pwd_update_user = "$baseUrl/api/v1/reinitialser/reset";
+
     $phone = $_POST["openUpdatePwdPhone"];
+
+    $donnees_get_reset_token = [
+      "phone" => $phone
+    ];
+
+    $data_user_update_pwd = api_post_data_function($url_get_reset_token,$donnees_get_reset_token,$headers_base);
+
+    $decode_data_user_update_pwd = json_decode($data_user_update_pwd, true);
+
+    $resetToken = $decode_data_user_update_pwd['resetToken'];
+
     $newPwd = $_POST["openUpdatePwdNew"];
 
-    var_dump($oldPwd);
     $donnees_pwd_update = [
-      "password" => $oldPwd,
-      "phone" => $phone,
+      "resetToken" => $resetToken,
       "newPassword" => $newPwd
-
     ];
-    $url_pwd_update_user = "http://104.196.146.173:9000/api/v1/utilisateur/$updPwdUserId";
   
     api_post_data_function($url_pwd_update_user,$donnees_pwd_update,$headers_all);
     header("Location: consumers-all.php");
@@ -146,6 +158,7 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
 <body class="hold-transition sidebar-mini layout-fixed">
   <?php include '../partials/navbar.php'; ?>
   <?php include '../partials/sidebar.php'; ?>
+  <?php include '../partials/toasts.php'; ?>
 
   <div id="app">
     <div class="content-wrapper">
@@ -244,7 +257,7 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
                       <td v-else> 0 </td>
                       <td>
                       <button type="button" :class="btns.editClassValue" data-toggle="modal" @click="openUpdate(data.id,data.nom,data.prenom,data.phone,data.status)" data-target="#modal-primary"><i :class="btns.editIconValue"></i></button>
-                      <button v-if="data.status=='actif'" type="button" :class="btns.changePwdClassValue" data-toggle="modal" @click="openUpdatePwd(data.id,data.phone,data.password)" data-target="#modal-warning"><i :class="btns.changePwdIconValue"></i></button>
+                      <button v-if="data.status=='actif'" type="button" :class="btns.changePwdClassValue" data-toggle="modal" @click="openUpdatePwd(data.id,data.phone)" data-target="#modal-warning"><i :class="btns.changePwdIconValue"></i></button>
                       <button type="button" :class="btns.deleteClassValue" data-toggle="modal" @click="confirmDelete(data.id)" data-target="#modal-danger"><i :class="btns.deleteIconValue"></i></button>
                       </td>
                     </tr>
@@ -303,10 +316,7 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
                   <input type="hidden" name="updatePwdForm">
                   <input type="hidden" id="updPwdID" name="updPwdID">
                   <input type="hidden" id="openUpdatePwdPhone" name="openUpdatePwdPhone">
-                  <div class="form-group">
-                    <label for="openUpdatePwdOld">Ancien Mot de passe</label>
-                    <input type="password" class="form-control" id="openUpdatePwdOld" name="openUpdatePwdOld" placeholder="Choisir un mot de passe">
-                  </div>
+                  <input type="hidden" id="openUpdatePwdOTP" name="openUpdatePwdOTP">
                   <div class="form-group">
                     <label for="openUpdatePwdNew">Nouveau mot de passe</label>
                     <input type="password" class="form-control" id="openUpdatePwdNew" name="openUpdatePwdNew" placeholder="Entrer le nouveau mot de passe">
@@ -472,10 +482,9 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
           var updIDField = document.getElementById("updID");
           updIDField.value = id;
         },
-        openUpdatePwd(id,phone,password) {
+        openUpdatePwd(id,phone) {
           this.updatePwdId = id;
           document.getElementById('openUpdatePwdPhone').value = phone;
-          document.getElementById('openUpdatePwdOld').value = password;
         },
         updateItemPwd(id) {
           var updPwdIDField = document.getElementById("updPwdID");

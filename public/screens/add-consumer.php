@@ -28,7 +28,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
   $reg_user_mdp2 = $_POST["mdp1"];
 
   if(!empty($reg_user_lname) && !empty($reg_user_fname) && !empty($reg_user_phone) && !empty($reg_user_mdp1) && !empty($reg_user_mdp2)){
-    if($reg_user_mdp1 = $_POST["mdp1"] == $reg_user_mdp1 = $_POST["mdp2"]){
+    if($_POST["mdp1"] == $_POST["mdp2"]){
 
       $roleName = "client";
       $donnees_reg = [
@@ -83,6 +83,10 @@ $nbre_lignes = 0;
   <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- SweetAlert2 -->
+  <link rel="stylesheet" href="../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+  <!-- Toastr -->
+  <link rel="stylesheet" href="../plugins/toastr/toastr.min.css">
   <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <!-- iCheck -->
@@ -102,12 +106,20 @@ $nbre_lignes = 0;
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
     crossorigin="anonymous"></script>
+  <!-- SweetAlert2 -->
+  <script src="../plugins/sweetalert2/sweetalert2.min.js"></script>
+  <!-- Toastr -->
+  <script src="../plugins/toastr/toastr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
     integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
     crossorigin="anonymous"></script>
+  <!-- jQuery -->
+  <script src="../plugins/jquery/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
     integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
     crossorigin="anonymous"></script>
+  <!-- AdminLTE for demo purposes -->
+  <script src="../dist/js/demo.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 </head>
@@ -148,7 +160,7 @@ $nbre_lignes = 0;
                   </div>
                   <div class="form-group">
                     <label for="InputFirstName">Prénom(s)</label>
-                    <input type="text" class="form-control" id="nom" name="prenom" placeholder="Entrer le/les prénoms du client">
+                    <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Entrer le/les prénoms du client">
                   </div>
                   <div class="form-group">
                     <label for="InputTel">Numéro du client (Format +228XXXXXXXX)</label>
@@ -166,7 +178,7 @@ $nbre_lignes = 0;
                 <!-- /.card-body -->
 
                 <div class="card-footer">
-                  <button type="submit" class="btn btn-default" style="background-color:#AA742A;color:white">Soumettre</button>
+                  <button type="submit" id="add-btn" class="btn btn-default toastrDefaultError" onclick="verifyAuthData()" style="background-color:#AA742A;color:white">Soumettre</button>
                 </div>
               </form>
             </div>
@@ -224,123 +236,6 @@ $nbre_lignes = 0;
   <!-- AdminLTE for demo purposes -->
   <script src="../dist/js/demo.js"></script>
 
-
-  <script>
-
-    // Initialiser une nouvelle instance de Vue
-    new Vue({
-      el: '#app',
-      data: {
-        loggedIn: false,
-        username: '',
-        password: '',
-        userList: <?php echo $data_vue_json; ?>,
-        btns: { editClassValue: 'btn btn-primary btn-xs', editIconValue: 'fas fa-user-edit', disableClassValue: 'btn btn-warning btn-xs', disableIconValue: 'fas fa-power-off', deleteClassValue: 'btn btn-danger btn-xs', deleteIconValue: 'fas fa-trash'}
-      },
-
-      methods: {
-        formatDate(dateRecue) {
-            const dateObj = new Date(dateRecue);
-
-            const jour = dateObj.getDate();
-            const mois = dateObj.getMonth() + 1;
-            const annee = dateObj.getFullYear();
-
-            const dateFormatee = `${mois < 10 ? '0' + mois : mois}-${jour < 10 ? '0' + jour : jour}-${annee}`;
-
-            return dateFormatee;
-        },
-        
-        operatorCheck(numero) {
-           let ope_name = "";
-           for (let i = 0; i < numero.length; i++) {
-               let ope_digit = numero[5]; 
-               if (ope_digit == 0 || ope_digit == 1 || ope_digit == 2 || ope_digit == 3) {
-                  ope_name = "TOGOCOM"; 
-               } else if (ope_digit == 9 || ope_digit == 8 || ope_digit == 7 || ope_digit == 6) {
-                  ope_name = "MOOV AFRICA"; 
-               } else {
-                  ope_name = "INCONNU"; 
-               }
-           }
-
-           return ope_name;
-        }
-      }
-    });
-
-    document.getElementById('table-searchbar').addEventListener('input', function(event) {
-         searchEl(event.target.value);
-    });
-
-    function searchEl(motsCles) {
-       var lignes = document.querySelectorAll('#tableau-consumers tbody tr');
-
-    var motsClesArray = motsCles.toLowerCase().split(' ');
-
-    lignes.forEach(function(ligne) {
-        var colonnes = ligne.querySelectorAll('td');
-        var afficherLigne = false;
-
-        colonnes.forEach(function(colonne) {
-
-          var colonneContientMotsCles = motsClesArray.every(function(motCle) {
-                return colonne.textContent.toLowerCase().includes(motCle);
-            });
-
-            if (colonneContientMotsCles) {
-                afficherLigne = true;
-            }
-        });
-
-        if (afficherLigne) {
-            ligne.style.display = '';
-        } else {
-            ligne.style.display = 'none';
-        }
-    });
-    }
-
-       document.getElementById('dateDebut').addEventListener('change', function() {
-              filtrerParPeriode(new Date(this.value), new Date(document.getElementById('dateFin').value));
-        });
-
-       document.getElementById('dateFin').addEventListener('change', function() {
-              filtrerParPeriode(new Date(document.getElementById('dateDebut').value), new Date(this.value));
-        });
-
-       function filtrerParPeriode(dateDebut, dateFin) {
-
-          if (dateDebut > dateFin) {
-             alert("La date de début ne peut pas être postérieure à la date de fin.");
-             return; 
-            }
-
-          var lignes = document.querySelectorAll('#tableau-consumers tbody tr');
-
-          lignes.forEach(function(ligne) {
-            var colonneDate = ligne.querySelector('#colonne-date'); 
-            var dateLigne = new Date(colonneDate.textContent);
-
-            if (dateLigne >= dateDebut && dateLigne <= dateFin) {
-                ligne.style.display = '';
-            }
-            else if (dateLigne <= dateDebut && dateLigne >= dateFin) {
-                ligne.style.display = 'none';
-            }
-            else if (dateLigne >= dateDebut && isNaN(dateFin.getTime())) {
-                ligne.style.display = '';
-            }
-            else if (isNaN(dateDebut.getTime()) && dateLigne <= dateFin) {
-                ligne.style.display = '';
-            }
-            else {
-                ligne.style.display = 'none';
-            }
-        });
-    }
-
-  </script>
 </body>
 
 </html>

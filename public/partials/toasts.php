@@ -1,7 +1,12 @@
 <?php
-$error_msg = "";
+$msg = "";
 ?>
-
+<button type="button" class="btn btn-success toastsDefaultSuccess">
+  <?= $msg ?>
+</button>
+<button type="button" class="btn btn-danger toastsDefaultDanger">
+<?= $msg ?>
+</button>
 <script type="text/javascript">
   $(function() {
     const Toast = Swal.mixin({
@@ -43,13 +48,13 @@ $error_msg = "";
     });
 
     $('.toastrDefaultSuccess').click(function() {
-      toastr.success('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+      toastr.success(msg)
     });
     $('.toastrDefaultInfo').click(function() {
       toastr.info('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
     });
     $('.toastrDefaultError').click(function() {
-      toastr.error('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+      toastr.error(msg)
     });
     $('.toastrDefaultWarning').click(function() {
       toastr.warning('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')

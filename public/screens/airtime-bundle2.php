@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('../../api_codes/api_req_functions.php');
+include('../../api_codes/base_url.php');
 
 $current_page = "../screens/".basename($_SERVER['PHP_SELF']);
 
@@ -10,7 +11,7 @@ if (empty($_SESSION['token_auth'])) {
   die;
 }
 
-$url_get_users = "http://104.196.146.173:9000/api/v1/utilisateur";
+$url_get_users = "$baseUrl/api/v1/utilisateur";
 $nbre_lignes = 0;
 
 $headers_all = [

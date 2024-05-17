@@ -46,7 +46,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="../screens/consumers-stats.php" class="nav-link">
                                 <p>Statistiques</p>
                             </a>
                         </li>

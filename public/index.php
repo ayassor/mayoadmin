@@ -5,8 +5,6 @@ include('../api_codes/api_req_functions.php');
 include('../api_codes/api_signin.php');
 
 
-$login_error_class = "";
-
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     $username = $_POST["username"];
@@ -35,11 +33,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         echo "Token d'authentification et ID de l'utilisateur obtenus avec succès.";
       } else {
         header("Location: index.php");
-        $error_msg = "Nom d'utilisateur ou mot de passe incorrect";
+        $msg = "Nom d'utilisateur ou mot de passe incorrect";
       } 
     }
     else {
-        $error_msg = "Informations de connexion manquantes";
+        $msg = "Informations de connexion manquantes";
     }
 }
 ?>

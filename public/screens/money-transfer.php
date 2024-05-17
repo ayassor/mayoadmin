@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('../../api_codes/api_req_functions.php');
+include('../../api_codes/base_url.php');
 
 $current_page = "../screens/".basename($_SERVER['PHP_SELF']);
 
@@ -12,7 +13,7 @@ if(empty($_SESSION['token_auth'])) {
 
 // URL de l'API pour récupérer la liste des users
 //$url_get_users = "http://35.237.39.146:9000/api/v1/utilisateur";
-$url_get_users = "http://104.196.146.173:9000/api/v1/utilisateur";
+$url_get_users = "$baseUrl/api/v1/utilisateur";
 
 // Définir les en-têtes personnalisés nécessaires pour les prochaines requêtes
 $headers_all = [
