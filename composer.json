@@ -1,9 +1,6 @@
 {
-    "name": "alibo/mayo_admin",
-    "autoload": {
-        "psr-4": {
-            "Router\\": "routes/"
-        }
-    },
-    "require": {}
+    "require": {
+        "kreait/firebase-php": "^7.10",
+        "grpc/grpc": "1.30"
+    }
 }

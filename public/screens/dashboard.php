@@ -40,6 +40,22 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
   $data_vue_json = json_encode($data_vue);
 ?>
 
+  <style>
+
+    #dashboard i{
+        color:#AA742A !important;
+    }
+    #dashboard p{
+        color:#AA742A !important;
+    }
+  
+  #dashboard{
+   background-color:#fff !important;
+   color:rgb(70,70,70);
+}
+
+</style>
+
 <!DOCTYPE html>
 <html>
 
@@ -149,9 +165,9 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
                           </div>
                           <div class="col-md-6 align-right">
                             <div>
-                              <span :class="data.subBoxStyle" style="margin-left:75px;padding-left:10px;padding-right:10px"> -250% </span>
+                              <span :class="data.subBoxStyle" style="margin-left:75px;padding-left:10px;padding-right:10px"> {{data.number}} </span>
                               </br>
-                              <p style="color: black;font-size:13px;margin-left:15px;margin-top:10px;margin-bottom:5px"> {{data.activeUser}} {{data.title}} actif(s) </p>
+                              <p style="color: black;font-size:13px;margin-left:15px;margin-top:10px;margin-bottom:5px"> {{data.number}} {{data.title}} actif(s) </p>
                             </div>
                           </div>
                         </div>

@@ -63,6 +63,40 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
   $data_bills_trans_vue_json = json_encode($data_bills_trans_vue[1]['data']);
 ?>
 
+
+
+<style>
+
+#operation {
+    display: block;
+  }
+#bilpayement i{
+    color:#AA742A !important;
+}
+#bilpayement p{
+    color:#AA742A !important;
+}
+
+#bilpayement{
+background-color:#fff !important;
+color:rgb(70,70,70);
+}
+
+.sms-column {
+    max-width: 700px; /* Limiter la largeur maximale de la colonne */
+    min-width: 400px; /* Limiter la largeur maximale de la colonne */
+    word-wrap: break-word; /* Permettre les sauts de ligne automatiques */
+    white-space: normal; /* Permettre les sauts de ligne */
+  }
+  .intitule-column {
+    max-width: 700px; /* Limiter la largeur maximale de la colonne */
+    min-width: 200px; /* Limiter la largeur maximale de la colonne */
+    word-wrap: break-word; /* Permettre les sauts de ligne automatiques */
+    white-space: normal; /* Permettre les sauts de ligne */
+  }
+
+</style>
+
 <!DOCTYPE html>
 <html>
 
@@ -108,6 +142,61 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
 <body class="hold-transition sidebar-mini layout-fixed">
   <?php include '../partials/navbar.php'; ?>
   <?php include '../partials/sidebar.php'; ?>
+
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAl7cmE0wnwB9mapNmleYIh-0yi6e2Z5JU",
+    authDomain: "united-night-409713.firebaseapp.com",
+    projectId: "united-night-409713",
+    storageBucket: "united-night-409713.appspot.com",
+    messagingSenderId: "19844670722",
+    appId: "1:19844670722:web:02ddda73b79c7f69080e1b",
+    measurementId: "G-9Y3TMCC495"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  if (app) {
+    console.log("Firebase initialisé avec succès !");
+  } else {
+    console.error("Erreur lors de l'initialisation de Firebase.");
+  }
+
+  const db = getFirestore();
+
+  // Référence de la collection 'transactions'
+  const colRef = collection(db, 'transactions');
+
+  // Ajouter une requête pour filtrer les documents où le champ 'type' est égal à 'Forfaits'
+  const q = query(colRef, where('type', '==', 'Factures'));
+
+  let transactionsData = []; // Initialiser un tableau vide pour stocker les données
+
+  getDocs(q)
+    .then((snapshot) => {
+      snapshot.forEach((doc) => {
+        transactionsData.push(doc.data()); // Ajouter les données de chaque document au tableau
+      });
+
+      // Afficher le tableau dans la console
+      window.myData = transactionsData;
+
+      console.log(window.myData);
+    })
+    .catch((error) => {
+      console.error('Une erreur s\'est produite lors de la récupération des données :', error);
+    })
+    .finally(() => {
+      console.log('Fin de la récupération des données');
+    });
+
+</script>
+
 
   <div id="app4">
     <div class="content-wrapper">
@@ -176,38 +265,31 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
               </div>
               <!-- /.card-header -->
               <div class="card-body table-responsive p-0">
-                <table id="tableau-billsTrans" class="table table-hover text-nowrap">
+              <table id="tableau-bundleTrans" class="table table-hover text-nowrap">
                   <thead>
                     <tr>
-                      <th>
-                          <input type="checkbox">
-                      </th>
+                    
                       <th>ID</th>
-                      <th>Date de transaction</th>
-                      <th>Opérateur</th>
-                      <th>Type de facture</th>
-                      <th>Intitulé de facture</th>
-                      <th>Numéro du souscripteur</th>
-                      <th>Montant</th>
-                      <th>Actions</th>
+                      <th>Date</th>
+                      <th class="intitule-column">Intitulé du forfait</th>
+                      <th class="sms-column">sms</th>
+                      <th>Id utilisateur</th>
+                      <!-- <th>Actions</th> -->
                     </tr>
                   </thead>
                   <tbody>
-                    <!--<tr v-for="(data, index) in billsTransList" :key="data.id">
-                      <td>
-                          <input :id="data.id" type="checkbox">
-                      </td>
-                      <td> {{ index + 1 }} </td>
-                      <td> {{ formatDate(data.date) }} </td>
-                      <td> {{ data.type }} </td>
-                      <td> {{ data.title }} </td>
-                      <td> {{ data.title }} </td>
-                      <td>+228 {{ data.sender_number }} </td>
-                      <td> {{ data.total_amount }} F CFA</td>
-                      <td>
-                      <button type="button" :class="btns.viewClassValue" data-toggle="modal" data-target="#modal-primary"><i :class="btns.viewIconValue"></i></button>
-                      </td>
-                    </tr>-->
+                    <tr v-for="(data, index) in bundleTransList">
+                     
+                      <td> {{ index + 1 }}</td>
+                      <td> {{ formatDate(data.date) }}</td>
+                      <td class="intitule-column"> {{ data.title }} </td>
+                      <td class="sms-column"> {{ data.body }} </td>
+                      <td> {{ data.UserId }} </td>
+                      <!-- <td>
+                        <button type="button" :class="btns.viewClassValue" data-toggle="modal"
+                          data-target="#modal-primary"><i :class="btns.viewIconValue"></i></button>
+                      </td> -->
+                    </tr>
                   </tbody>
                 </table>
                 
@@ -333,55 +415,77 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
         loggedIn: false,
         username: '',
         password: '',
-        billsTransList: <?php echo $data_bills_trans_vue_json; ?>,
+        bundleTransList: [],
         btns: { viewClassValue: 'btn btn-primary btn-xs', viewIconValue: 'far fa-eye' }
       },
 
+      mounted() {
+        // Surveiller les changements de window.myData
+        const updateData = () => {
+          if (window.myData && window.myData.length > 0) {
+            this.bundleTransList = window.myData;
+          } else {
+            setTimeout(updateData, 100); // Vérifier à nouveau dans 100ms
+          }
+        };
+
+        updateData(); // Démarrer la surveillance
+      },
+
       methods: {
-         formatDate(dateRecue) {
-         const dateObj = new Date(dateRecue);
+        formatDate(timestamp) {
+          // Extraire les secondes et nanosecondes
+          const seconds = timestamp.seconds;
+          const nanoseconds = timestamp.nanoseconds;
 
-         const jour = dateObj.getDate();
-         const mois = dateObj.getMonth() + 1;
-         const annee = dateObj.getFullYear();
+          // Convertir en millisecondes
+          const milliseconds = seconds * 1000 + Math.floor(nanoseconds / 1e6);
 
-         const dateFormatee = `${jour < 10 ? '0' + jour : jour}-${mois < 10 ? '0' + mois : mois}-${annee}`;
+          // Créer un objet Date
+          const dateObj = new Date(milliseconds);
 
-         return dateFormatee;
+          const jour = dateObj.getDate();
+          const mois = dateObj.getMonth() + 1;
+          const annee = dateObj.getFullYear();
+
+          const dateFormatee = `${jour < 10 ? '0' + jour : jour}-${mois < 10 ? '0' + mois : mois}-${annee}`;
+
+          return dateFormatee;
         }
-  }
+
+      }
     });
 
-    document.getElementById('table-searchbar').addEventListener('input', function(event) {
-         searchEl(event.target.value);
+    document.getElementById('table-searchbar').addEventListener('input', function (event) {
+      searchEl(event.target.value);
     });
 
     function searchEl(motsCles) {
-    var lignes = document.querySelectorAll('#tableau-billsTrans tbody tr');
+      var lignes = document.querySelectorAll('#tableau-bundleTrans tbody tr');
 
-    var motsClesArray = motsCles.toLowerCase().split(' ');
+      var motsClesArray = motsCles.toLowerCase().split(' ');
 
-    lignes.forEach(function(ligne) {
+      lignes.forEach(function (ligne) {
         var colonnes = ligne.querySelectorAll('td');
         var afficherLigne = false;
 
-        colonnes.forEach(function(colonne) {
+        colonnes.forEach(function (colonne) {
 
-          var colonneContientMotsCles = motsClesArray.every(function(motCle) {
-                return colonne.textContent.toLowerCase().includes(motCle);
-            });
+          var colonneContientMotsCles = motsClesArray.every(function (motCle) {
+            return colonne.textContent.toLowerCase().includes(motCle);
+          });
 
-            if (colonneContientMotsCles) {
-                afficherLigne = true;
-            }
+          if (colonneContientMotsCles) {
+            afficherLigne = true;
+          }
         });
 
         if (afficherLigne) {
-            ligne.style.display = '';
+          ligne.style.display = '';
         } else {
-            ligne.style.display = 'none';
+          ligne.style.display = 'none';
         }
-    });
+      });
     }
   </script>
 </body>

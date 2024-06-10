@@ -1,5 +1,5 @@
 <?php
-require '../vendor/autoload.php';
+// require '../vendor/autoload.php';
 session_start();
 include('../api_codes/api_req_functions.php');
 include('../api_codes/api_signin.php');

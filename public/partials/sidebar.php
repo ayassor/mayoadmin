@@ -1,10 +1,9 @@
 <aside class="main-sidebar sidebar-custom elevation-4" style=''>
     <!-- Brand Logo -->
     <a href="index3.html" class="brand-link">
-        <img src="../dist/img/mayo-logo.svg" alt="Mayo" class="brand-image elevation-1"
-            style="opacity: .8">
-            <br>
-            <br>
+        <img src="../dist/img/mayo_logo_blanc.png" alt="Mayo" class="brand-image elevation-0" style="opacity: .8">
+        <br>
+        <br>
         <span class="brand-text font-weight-light" style="margin-left:10px;padding-top:25px">Menu</span>
     </a>
 
@@ -17,42 +16,25 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-               
+
                 <li class="nav-item">
-                    <a href="../screens/dashboard.php" class="nav-link active">
+                    <a href="../screens/dashboard.php" class="nav-link" id="dashboard">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Tableau de bord
                         </p>
                     </a>
                 </li>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
+                <li class="nav-item">
+                    <a href="../screens/consumers-all.php" class="nav-link" id="clients">
                         <i class="nav-icon fas fa-users"></i>
                         <p>
                             Clients
-                            <i class="right fas fa-angle-right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview ml-4">
-                        <li class="nav-item">
-                            <a href="../screens/consumers-all.php" class="nav-link">
-                                <p>Tous les clients</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <p>Historique</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <p>Statistiques</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
-                <li class="nav-item has-treeview">
+            
+                <!-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-store"></i>
                         <p>
@@ -77,8 +59,8 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-                <li class="nav-item has-treeview">
+                </li> -->
+                <!-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-screwdriver"></i>
                         <p>
@@ -103,8 +85,8 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-                <li class="nav-item has-treeview">
+                </li> -->
+                <!-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-car"></i>
                         <p>
@@ -139,48 +121,41 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> -->
                 <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
+                    <a href="#" class="nav-link" >
                         <i class="nav-icon fa fa-retweet"></i>
                         <p>
                             Opérations
                             <i class="right fas fa-angle-right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview ml-4">
+                    <ul class="nav nav-treeview ml-4" id="operation">
                         <li class="nav-item">
-                            <a href="../screens/money-transfer.php" class="nav-link">
+                            <a href="../screens/money-transfer.php" class="nav-link" id="moneytransfert">
                                 <p>Transfert d'argent</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="../screens/airtime-bundle.php" class="nav-link">
+                            <a href="../screens/airtime-bundle.php" class="nav-link" id="airtimebundle">
                                 <p>Achats de forfaits</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="../screens/bills-payment.php" class="nav-link">
+                            <a href="../screens/bills-payment.php" class="nav-link" id="bilpayement">
                                 <p>Paiement de factures</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <p>Statistiques</p>
                             </a>
-                        </li>
+                        </li> -->
                     </ul>
                 </li>
+             
                 <li class="nav-item">
-                    <a href="../screens/dashboard.php" class="nav-link">
-                        <i class="nav-icon fas fa-user-tie"></i>
-                        <p>
-                            Staff
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="../screens/support.php" class="nav-link" id="support">
                         <i class="nav-icon fab fa-teamspeak"></i>
                         <p>
                             Support & Assistance
@@ -188,7 +163,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="../screens/settings.php" class="nav-link" id="parametres">
                         <i class="nav-icon fas fa-cog"></i>
                         <p>
                             Paramètres
@@ -316,7 +291,7 @@
                         </li>-->
 
 
-                    </ul>
+            </ul>
         </nav>
         <!-- /.sidebar-menu -->
     </div>
@@ -324,52 +299,68 @@
 </aside>
 
 <style>
+    .sidebar-custom {
+        background-color: #AA742A;
+        !important
+    }
 
-    .sidebar-custom{
-        background-color: #AA742A;!important
+    .sidebar-custom .sidbar nav ul li a.nav-link {
+        color: white
     }
-    .sidebar-custom .sidbar nav ul li a.nav-link{
-        color : white
-    }
-    p{
-        
-        color: white;  important!;
-    }
-    .nav-link i{
-        color: white;  important!;
 
+    p {
+
+        color: white;
+        important !;
     }
-    .info a{
-        color: white;  important!;
-    }
-    .brand-text{
-        color: white;  important!;
+
+    .nav-link i {
+        color: white;
+        important !;
 
     }
+
+    .info a {
+        color: white;
+        important !;
+    }
+
+    .brand-text {
+        color: white;
+        important !;
+
+    }
+
     nav .nav .nav-item .active {
-        background-color: white; important!;
+        background-color: white;
+        important !;
     }
-    nav .nav .nav-item .active p{
-            color: #AA742A;
+
+    nav .nav .nav-item .active p {
+        color: #AA742A;
     }
-    nav .nav .nav-item .active i{
-            color: #AA742A;
+
+    nav .nav .nav-item .active i {
+        color: #AA742A;
     }
-    .stat-info{
+
+    .stat-info {
         height: 20px;
         padding: 3px;
         border-radius: 8px;
     }
-    .theme-text-primary{
+
+    .theme-text-primary {
         color: #AA742A;
     }
-    .theme-stat-size{
+
+    .theme-stat-size {
         font-size: 28px;
     }
-    .align-right{
+
+    .align-right {
         display: flex;
         align-items: flex-end;
         justify-content: flex-end;
     }
-
 </style>
