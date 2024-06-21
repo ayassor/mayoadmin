@@ -4,11 +4,14 @@ session_start();
 include('../api_codes/api_req_functions.php');
 include('../api_codes/api_signin.php');
 
+
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     $username = $_POST["username"];
     $pwd = $_POST["password"];
-
+    
+    if(!empty($username) && !empty($pwd)){
+        
     $donnees_auth = [
         "password" => $pwd,
         "phone" => $username
@@ -26,25 +29,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         // Stocker le token d'authentification dans la variable de session
         $_SESSION['token_auth'] = $token_auth;
         $_SESSION['user_id_auth'] = $user_id_auth;
+        header("Location: screens/dashboard.php");
         echo "Token d'authentification et ID de l'utilisateur obtenus avec succès.";
       } else {
-        echo "Échec de l'obtention du token d'authentification.";
-      }
-
-    if(!empty($username) && !empty($pwd)){
-
-        if(!empty($_SESSION['token_auth'])){
-                header("Location: screens/dashboard.php");
-                die;
-        }
-        else {
-            header("Location: index.php");
-            echo "Nom d'utilisateur ou mot de passe incorrect";
-            die;
-        }
-    }    
+        header("Location: index.php");
+        $msg = "Nom d'utilisateur ou mot de passe incorrect";
+      } 
+    }
     else {
-        echo "Informations de connexion manquantes";
+        $msg = "Informations de connexion manquantes";
     }
 }
 ?>

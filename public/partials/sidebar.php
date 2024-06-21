@@ -50,11 +50,6 @@
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <p>Historique</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
                                 <p>Statistiques</p>
                             </a>
                         </li>
@@ -72,11 +67,6 @@
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <p>Tous les chauffeurs</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <p>Historique</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -297,6 +287,32 @@
     </div>
     <!-- /.sidebar -->
 </aside>
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+    var currentPage = "<?php echo $current_page; ?>";
+
+    // Trouver tous les liens dans la barre latérale
+    var links = document.querySelectorAll(".nav-item a");
+
+    links.forEach(function(link) {
+        var href = link.getAttribute("href");
+        var parentLi = link.closest(".nav-item.has-treeview");
+        var parentA = link.closest(".nav-link");
+
+        // Vérifier si le lien correspond à la page actuelle
+        if (currentPage === href) {
+            link.classList.add("active");
+
+            // Si le lien a un parent avec la classe "has-treeview", ajoutez la classe "menu-open" au parent
+            if (parentLi && parentLi.classList.contains("has-treeview")) {
+                parentLi.classList.add("menu-open");
+                parentA.classList.add("active");
+            }
+        }
+    });
+});
+</script>
 
 <style>
     .sidebar-custom {

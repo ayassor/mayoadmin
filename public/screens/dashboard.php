@@ -1,6 +1,11 @@
 <?php
 session_start();
 include('../../api_codes/api_req_functions.php');
+include('../../api_codes/base_url.php');
+
+$current_page = "../screens/".basename($_SERVER['PHP_SELF']);
+
+//var_dump($current_page);
 
 if(empty($_SESSION['token_auth'])) {
   header("Location: ../index.php");
@@ -9,7 +14,7 @@ if(empty($_SESSION['token_auth'])) {
 }
 
 // URL de l'API pour récupérer la liste des users
-$url_get_users = "http://35.237.39.146:9000/api/v1/utilisateur";
+$url_get_users = "$baseUrl/api/v1/utilisateur";
 
 // Définir les en-têtes personnalisés nécessaires pour les prochaines requêtes
 $headers_all = [
@@ -19,19 +24,32 @@ $headers_all = [
 
 $compare_token = $_SESSION['token_auth'];
 
-$users_data = api_data_function($url_get_users, $headers_all);
+$users_data = api_get_data_function($url_get_users, $headers_all);
 
 $decode_users_data = json_decode($users_data, true);
 
 $data_vue = [];
 
 $nbre_lignes = 0;
+$nbre_clients_actifs = 0;
+$nbre_clients_inactifs = 0;
 
 if ($decode_users_data !== null && isset($decode_users_data['data'])) {
   // Parcourir les enregistrements et afficher les valeurs des propriétés spécifiques
   foreach ($decode_users_data['data'] as $enregistrement) {
+    if($enregistrement['nom'] !== NULL && $enregistrement['prenom'] !== NULL) {
       $data_vue[] = $enregistrement;
       $nbre_lignes++;
+      if($enregistrement['status'] == "actif") {
+        $nbre_clients_actifs++;
+      }
+      else {
+        $nbre_clients_inactifs++;
+      }
+    }
+    else{
+      $nbre_lignes++;
+    }
     }
   } else {
       echo "Erreur de décodage ou de type des données JSON.";
@@ -300,18 +318,19 @@ if ($decode_users_data !== null && isset($decode_users_data['data'])) {
           { id: 3, title: 'Donnée 3', from :'+228 98489705', to:'+228 90050505' },
         ],
         resumeCardData: [
-          { id: 1, title: 'Total Clients', number: <?= $nbre_lignes; ?>, icon: 'fas fa-users', subBoxStyle: 'info-box-icon elevation-1 bg-success', url: 'consumers-all.php' },
+          { id: 1, title: 'Total Clients', number: <?= $nbre_lignes ; ?>, icon: 'fas fa-users', subBoxStyle: 'info-box-icon elevation-1 bg-success', url: 'consumers-all.php' },
           { id: 2, title: 'Total Marchands', number: '0', icon: 'fas fa-store', subBoxStyle: 'info-box-icon elevation-1 bg-info', url: '#' },
           { id: 3, title: 'Total Chauffeurs', number: '0', icon: 'fas fa-car', subBoxStyle: 'info-box-icon elevation-1 bg-primary ', url: '#' },
-          { id: 4, title: 'Total Opérations', number: '0', icon: 'fas fa-exchange-alt', subBoxStyle: 'info-box-icon elevation-1 bg-danger ', url: '#' },
+          { id: 4, title: 'Total Opérations', number: '25', icon: 'fas fa-exchange-alt', subBoxStyle: 'info-box-icon elevation-1 bg-danger ', url: '#' },
         ],
         statCardData: [
-          { id: 1, title: 'Client(s)', number: <?= $nbre_lignes; ?>, subBoxStyle: 'bg-success elevation-1 stat-info', activeUser: '50' },
-          { id: 2, title: 'Marchand(s)', number: '0', subBoxStyle: 'bg-danger elevation-1 stat-info', activeUser: '0' },
-          { id: 3, title: 'Chauffeur(s)', number: '0', subBoxStyle: 'elevation-1 stat-info', activeUser: '0' },
+          { id: 1, title: 'Client(s)', number: <?= $nbre_lignes; ?>, subBoxStyle: 'bg-success elevation-1 stat-info', activeUsers : <?= $nbre_clients_actifs ?> },
+          { id: 2, title: 'Marchand(s)', number: '0', subBoxStyle: 'bg-danger elevation-1 stat-info', activeUsers : '0' },
+          { id: 3, title: 'Chauffeur(s)', number: '0', subBoxStyle: 'elevation-1 stat-info', activeUsers : '0' },
         ],
       }
     });
+
   </script>
 </body>
 

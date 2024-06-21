@@ -19,12 +19,9 @@ $headers_all = [
   'Authorization: Bearer ' . $_SESSION['token_auth']
 ];
 
-$users_data = api_data_function($url_get_users, $headers_all);
+$user_id_auth = $_SESSION['user_id_auth'];
 
-$money_trans_data = [];
-
-$decode_money_trans_data = [];
-
+$users_data = api_get_data_function($url_get_users, $headers_all);
 $decode_users_data = json_decode($users_data, true);
 
 $users_ids = [];
@@ -33,6 +30,11 @@ $users_data_list = []; // Tableau pour stocker les données complètes des utili
 $enregistrements = [];
 
 $nbre_lignes = 0;
+
+  $url_money_trans = "http://104.196.146.173:9004/api/v1/transactionInterne/$user_id_auth";
+  
+  $money_trans_data = api_get_data_function($url_money_trans, $headers_all);
+  $decode_money_trans_data = json_decode($money_trans_data, true);
 
 if ($decode_users_data !== null && isset($decode_users_data['data'])) {
   // Parcourir les enregistrements et afficher les valeurs des propriétés spécifiques
@@ -133,7 +135,7 @@ $users_data_list_json = json_encode($users_data_list); // Convertir le tableau d
         <div class="container-fluid">
           <div class="row mb-2">
             <div class="col-sm-6">
-              <h4 class="m-0 text-dark">Transfert d'argent</h4>
+              <h4 class="m-0 text-dark">Transferts d'argent</h4>
             </div><!-- /.col -->
           </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -295,7 +297,7 @@ $users_data_list_json = json_encode($users_data_list); // Convertir le tableau d
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <strong><?= $nbre_lignes ?> élément(s) | 0 sélectionné(s)</strong>
+    <strong>Nombre de lignes : <?= $nbre_lignes ?></strong>
   </footer>
 
   <!-- Control Sidebar -->
@@ -356,6 +358,39 @@ $users_data_list_json = json_encode($users_data_list); // Convertir le tableau d
         btns: { viewClassValue: 'btn btn-primary btn-xs', viewIconValue: 'far fa-eye' }
       },
 
+      mounted() {
+        // Surveiller les changements
+        const updateData = () => {
+          let myData = <?php echo $data_money_transfer_vue_json; ?>;
+          if (myData && myData.length > 0) {
+            let usersData = <?php echo $json_users_data; ?>;
+
+            for(let i=0;i<usersData.length;i++){
+                for(let j=0;j<myData.length;j++){
+                  if (usersData[i]['id'] == myData[j]['id_utilsateur']) {
+                      // Ajoutez le nom et le prénom de l'utilisateur aux données de paiement
+                       myData[j]['nom'] = usersData[i]['nom'];
+                       myData[j]['prenom'] = usersData[i]['prenom'];
+                       myData[j]['phone'] = usersData[i]['phone'];
+                  } 
+                }
+            } 
+            let existingUsersMoneyTrans = [];
+              for(let i=0;i<myData.length;i++){
+                 if(myData[i]['phone'] !== undefined){
+                  existingUsersMoneyTrans.push(myData[i]);
+                 }
+              }
+              //console.log(existingUsersMoneyTrans);
+              this.moneyTransList = existingUsersMoneyTrans;
+          } else {
+            setTimeout(updateData, 100); // Vérifier à nouveau dans 100ms
+          }
+
+        };
+
+        updateData(); // Démarrer la surveillance
+      },
       methods: {
         formatDate(dateRecue) {
           const dateObj = new Date(dateRecue);

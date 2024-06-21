@@ -16,7 +16,72 @@ $headers_all = [
   'Authorization: Bearer ' . $_SESSION['token_auth']
 ];
 
-$users_data = api_data_function($url_get_users, $headers_all);
+$headers_base = [
+  'Content-Type: application/json'
+];
+
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+  if(isset($_POST["deleteForm"])){
+    $delUserId = $_POST["delID"];
+
+    $url_delete_user = "$baseUrl/api/v1/utilisateur/$delUserId";
+  
+    api_delete_data_function($url_delete_user,$headers_all);
+    header("Location: consumers-all.php");
+    exit();
+  }
+  else if(isset($_POST["updateForm"])){
+    $updUserId = $_POST["updID"];
+    
+    $updateNom = $_POST["openUpdateNom"];
+    $updatePrenom = $_POST["openUpdatePrenom"];
+    $updatePhone = $_POST["openUpdatePhone"];
+    $updateStatut = $_POST["openUpdateStatut"];
+
+    $donnees_update = [
+      "nom" => $updateNom,
+      "prenom" => $updatePrenom,
+      "phone" => $updatePhone,
+      "status" => $updateStatut
+
+    ];
+    $url_update_user = "$baseUrl/api/v1/utilisateur/$updUserId";
+  
+    api_put_data_function($url_update_user,$donnees_update,$headers_all);
+    header("Location: consumers-all.php");
+    exit();
+  }
+  else if(isset($_POST["updatePwdForm"])){
+    
+    $url_get_reset_token = "$baseUrl/api/v1/reinitialser";
+    $url_pwd_update_user = "$baseUrl/api/v1/reinitialser/reset";
+
+    $phone = $_POST["openUpdatePwdPhone"];
+
+    $donnees_get_reset_token = [
+      "phone" => $phone
+    ];
+
+    $data_user_update_pwd = api_post_data_function($url_get_reset_token,$donnees_get_reset_token,$headers_base);
+
+    $decode_data_user_update_pwd = json_decode($data_user_update_pwd, true);
+
+    $resetToken = $decode_data_user_update_pwd['resetToken'];
+
+    $newPwd = $_POST["openUpdatePwdNew"];
+
+    $donnees_pwd_update = [
+      "resetToken" => $resetToken,
+      "newPassword" => $newPwd
+    ];
+  
+    api_post_data_function($url_pwd_update_user,$donnees_pwd_update,$headers_all);
+    header("Location: consumers-all.php");
+    exit();
+  }
+}
+
+$users_data = api_get_data_function($url_get_users, $headers_all);
 
 $decode_users_data = json_decode($users_data, true);
 
@@ -112,6 +177,7 @@ $data_vue_json = json_encode($data_vue);
 <body class="hold-transition sidebar-mini layout-fixed">
   <?php include '../partials/navbar.php'; ?>
   <?php include '../partials/sidebar.php'; ?>
+  <?php include '../partials/toasts.php'; ?>
 
   <div id="app">
     <div class="content-wrapper">
@@ -397,7 +463,7 @@ $data_vue_json = json_encode($data_vue);
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <strong><?= $nbre_lignes ?> élément(s) | 0 sélectionné(s)</strong>
+    <strong>Nombre de lignes : <?= $nbre_lignes ?></strong>
   </footer>
 
   <!-- Control Sidebar -->
